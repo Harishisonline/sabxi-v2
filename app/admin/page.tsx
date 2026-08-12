@@ -1,21 +1,22 @@
 /**
  * Admin index — placeholder.
  *
- * The middleware (app/middleware.ts) gates this route: signed-in
- * non-admin users get redirected to /, unauthenticated users to
- * /sign-in. So this page only ever renders for users with
- * Clerk publicMetadata.role === "admin".
+ * Auth is resource-based (Clerk deprecates createRouteMatcher path checks):
+ * this page calls isAdmin()/auth itself. proxy.ts only hydrates the Clerk
+ * session — it does not gate routes by path.
  *
  * The full admin dashboard is built in M9.13. For now, this is a
- * minimal landing page so that the middleware redirect is testable
- * and so admins don't see a 404 after signing in.
+ * minimal landing page so admins don't see a 404 after signing in.
  */
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { isAdmin } from "@/lib/auth";
 
 export default async function AdminLayoutPage() {
-  // Belt-and-braces: middleware already enforces this, but we double-check.
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in/");
+
   const admin = await isAdmin();
   if (!admin) redirect("/");
   return (

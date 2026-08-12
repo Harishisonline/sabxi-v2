@@ -1,8 +1,8 @@
 /**
  * /my-reviews — placeholder.
  *
- * The middleware redirects logged-out users to /sign-in. Logged-in
- * users land here. The full review-management UI ships in M9.9 / M9.11.
+ * Resource-based auth: unsigned users redirect to /sign-in via currentUser().
+ * proxy.ts does not path-match this route. Full UI ships in M9.9 / M9.11.
  */
 import { redirect } from "next/navigation";
 import Link from "next/link";
