@@ -1,0 +1,90 @@
+.reviews {
+  position: relative;
+  padding: var(--space-9) var(--space-5);
+  background: var(--bg);
+}
+
+.inner {
+  max-width: var(--max-w-content);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.label {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: var(--fs-4xl);
+  margin-bottom: var(--space-4);
+  line-height: var(--lh-tight);
+}
+
+.desc {
+  color: var(--text-soft);
+  font-size: var(--fs-lg);
+  max-width: 40rem;
+  margin: 0 auto var(--space-7);
+  line-height: var(--lh-base);
+}
+
+.emptyState {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.emptyText {
+  font-size: var(--fs-md);
+  color: var(--text);
+  margin-bottom: var(--space-6);
+  line-height: var(--lh-base);
+}
+
+.appBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-bottom: var(--space-5);
+  background: transparent;
+}
+
+.appBadges a {
+  display: inline-block;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.appBadges a:hover {
+  background: transparent;
+}
+
+.appBadges img {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+
+.seeAll {
+  font-size: var(--fs-sm);
+}
+
+.seeAll a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seeAll a:hover {
+  color: var(--accent-hover);
+}

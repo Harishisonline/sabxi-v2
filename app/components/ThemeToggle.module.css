@@ -1,0 +1,20 @@
+.toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-band);
+  color: var(--text);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.toggle:hover {
+  background: var(--surface-tomato);
+}
+
+.icon {
+  font-size: 18px;
+  line-height: 1;
+}

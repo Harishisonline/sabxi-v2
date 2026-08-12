@@ -1,0 +1,61 @@
+@import "./tokens.css";
+@import "./reset.css";
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-wide);
+}
+
+a {
+  color: var(--accent);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+
+/* Clerk sign-in button (in the SiteHeader) */
+.sabxi-clerk-signin-btn {
+  background: var(--color-orange-500);
+  color: var(--accent-fg, #0E1410);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1;
+}
+.sabxi-clerk-signin-btn:hover {
+  background: var(--color-orange-700);
+}
+.sabxi-clerk-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+[data-theme="dark"] .sabxi-clerk-signin-btn {
+  background: var(--color-orange-500);
+  color: #0E1410;
+}

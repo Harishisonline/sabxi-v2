@@ -1,0 +1,793 @@
+/* PrepAnimations — "Watch It Come Together" section.
+
+   This section is THEME-INVARIANT: it always uses the same warm cream /
+   peach palette regardless of light/dark mode. The original design intent
+   (from the live sabxi.com site) is a creamy, food-friendly backdrop with
+   dark text. The hero above it switches light/dark; the section below it
+   (StudioShowcase) switches light/dark; but this middle section stays
+   warm in both modes.
+
+   Why theme-invariant:
+   - The carrot/melon/juice/smoothie illustrations are warm-toned and
+     clash against the dark page background.
+   - The white-text-on-dark-card look in dark mode made the headline
+     invisible and the cards visually merge with the background.
+   - Keeping the warm cream palette preserves the food-warmth feeling.
+
+   All colors are hardcoded RGB values rather than theme tokens, on purpose:
+   this section ignores light/dark mode by design. */
+
+.sectionInner { max-width: var(--max-w-content); margin: 0 auto; }
+
+/* Section header — dark text on warm background, just like light mode */
+.sectionLabel {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--color-orange-500);
+  margin-bottom: 0.5rem; display: block;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  letter-spacing: 0.03em; line-height: 1.02; margin-bottom: 0.85rem;
+  color: #FFFFFF;
+}
+
+.sectionDesc {
+  font-size: 1.05rem; color: var(--color-orange-500); max-width: 620px; line-height: 1.7;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* Warm cream backdrop, theme-invariant — matches light mode exactly */
+.prepSection {
+  background:
+    linear-gradient(180deg, #FFF1E4 0%, #FFE3D2 50%, #FFD2BB 100%);
+  color: #141414;
+  position: relative;
+  overflow: hidden;
+  padding: 5.5rem 2rem;
+}
+
+/* Section title (h2) — dark text on cream, identical to light mode */
+.sectionTitleDark {
+  color: #141414;
+}
+
+/* Soft warm orange + green ambient glows (match light mode look) */
+.prepSection::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.14) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.prepSection::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.10) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.prepAnim { /* marker class for IntersectionObserver targets */ }
+
+.prepGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  margin-top: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* White card surface, theme-invariant (matches light mode exactly) */
+.prepStage {
+  background: #FFFFFF;
+  border: 1px solid #F0E6D8;
+  border-radius: 24px;
+  padding: 2.5rem 2rem 2rem;
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(20, 20, 20, 0.06);
+}
+
+.prepStageGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 75%, rgba(255, 107, 0, 0.14) 0%, transparent 55%);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.prepStageSmoothie .prepStageGlow {
+  background: radial-gradient(circle at 50% 75%, rgba(229, 57, 53, 0.12) 0%, transparent 55%);
+}
+
+.prepPlaying .prepStageGlow { opacity: 1; }
+
+.prepStageHead { text-align: center; position: relative; z-index: 2; }
+
+/* Pill tags — colored backgrounds like light mode (sage + tomato tints) */
+.prepStageTag {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  background: rgba(76, 175, 80, 0.18);
+  color: #2E7D32;
+  margin-bottom: 0.6rem;
+}
+
+.prepStageSmoothie .prepStageTag {
+  background: rgba(229, 57, 53, 0.18);
+  color: #C62828;
+}
+
+.prepStageCutveg .prepStageTag {
+  background: rgba(76, 175, 80, 0.18);
+  color: #2E7D32;
+}
+
+.prepStageHead h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+  color: #141414;
+}
+
+.prepStageHead p {
+  font-size: 0.85rem;
+  color: #5C5347;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.prepScene {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.juiceScene { position: relative; width: 130px; height: 290px; }
+
+.juiceCapWrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  transform-origin: 50% 100%;
+}
+
+.juiceCapRing {
+  width: 48px;
+  height: 10px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #555, #333);
+  border-radius: 3px;
+}
+
+.juiceCapBody {
+  width: 44px;
+  height: 22px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #3a3a3a, #1a1a1a);
+  border-radius: 4px 4px 2px 2px;
+}
+
+.juiceNeck {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-bottom: none;
+  z-index: 4;
+}
+
+.juiceBottle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 104px;
+  height: 228px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-radius: 10px 10px 18px 18px;
+  background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.06);
+}
+
+.juiceLiquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(180deg, #ffc966 0%, #ff8533 25%, var(--color-orange-500) 60%, #e55a00 100%);
+  border-radius: 0 0 16px 16px;
+}
+
+.juiceLiquid::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 10%;
+  right: 10%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.juiceLiquid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 40%);
+}
+
+.juiceBubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+}
+
+.juiceBubble1 { width: 7px; height: 7px; left: 22%; bottom: 18%; }
+.juiceBubble2 { width: 5px; height: 5px; left: 58%; bottom: 32%; }
+.juiceBubble3 { width: 6px; height: 6px; left: 38%; bottom: 48%; }
+
+.juiceBrand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.juiceMist {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 40px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.juiceMist span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 180, 100, 0.7);
+  filter: blur(3px);
+}
+
+.juiceMist span:nth-child(1) { left: 20%; animation: mistFloat 1.8s ease-out infinite; }
+.juiceMist span:nth-child(2) { left: 50%; animation: mistFloat 1.8s ease-out 0.4s infinite; }
+.juiceMist span:nth-child(3) { left: 70%; animation: mistFloat 1.8s ease-out 0.8s infinite; }
+
+@keyframes mistFloat {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  30% { opacity: 0.7; }
+  100% { transform: translateY(-28px) scale(1.2); opacity: 0; }
+}
+
+.prepPlaying .juiceCapWrap { animation: capTwistOpen 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes capTwistOpen {
+  0% { transform: translateX(-50%) rotate(0) translateY(0); }
+  35% { transform: translateX(-50%) rotate(-30deg) translateY(0); }
+  70% { transform: translateX(-50%) rotate(-30deg) translateY(-8px); }
+  100% { transform: translateX(-50%) rotate(-30deg) translateY(-42px); opacity: 0.5; }
+}
+
+.prepPlaying .juiceLiquid { animation: juiceFillUp 2.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s forwards; }
+
+@keyframes juiceFillUp { to { height: 82%; } }
+
+.prepPlaying .juiceMist { animation: mistShow 0.5s ease 0.7s forwards; opacity: 1; }
+
+@keyframes mistShow { from { opacity: 0; } to { opacity: 1; } }
+
+.prepPlaying .juiceBubble1 { animation: bubbleUp 2.2s ease-in 2s infinite; }
+.prepPlaying .juiceBubble2 { animation: bubbleUp 2.6s ease-in 2.3s infinite; }
+.prepPlaying .juiceBubble3 { animation: bubbleUp 2s ease-in 2.6s infinite; }
+
+@keyframes bubbleUp {
+  0% { transform: translateY(0) scale(0.3); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-80px) scale(1); opacity: 0; }
+}
+
+.smoothieScene { position: relative; width: 150px; height: 280px; }
+
+.smoothiePour {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 0;
+  border-radius: 5px;
+  opacity: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), var(--color-orange-500));
+}
+
+.smoothiePour::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.smoothieCup {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 210px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(0, 0, 0, 0.22);
+  border-radius: 6px 6px 22px 22px;
+  overflow: hidden;
+  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.06);
+}
+
+.smoothieCup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.smoothieLayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.smoothieLayer1 {
+  bottom: 0; height: 34%;
+  background: linear-gradient(180deg, #e53935 0%, #8e24aa 100%);
+}
+
+.smoothieLayer2 {
+  bottom: 34%; height: 33%;
+  background: linear-gradient(180deg, #ffb300 0%, #ff6f00 100%);
+}
+
+.smoothieLayer3 {
+  bottom: 67%; height: 26%;
+  background: linear-gradient(180deg, #fff9c4 0%, #fbc02d 100%);
+}
+
+.smoothieFoam {
+  position: absolute;
+  top: 8%; left: 10%; right: 10%; height: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  z-index: 8;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.smoothieFruitBit {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 9;
+}
+
+.smoothieFruitBit1 { width: 8px; height: 8px; background: #c62828; left: 30%; bottom: 55%; }
+.smoothieFruitBit2 { width: 6px; height: 6px; background: #ff8f00; left: 55%; bottom: 42%; }
+.smoothieFruitBit3 { width: 7px; height: 7px; background: #fbc02d; left: 42%; bottom: 72%; }
+
+.prepPlaying .smoothiePour { animation: pourDown 3.2s ease 0.1s forwards; }
+
+@keyframes pourDown {
+  0% { height: 0; opacity: 0; top: 0; }
+  8% { opacity: 1; height: 70px; top: 0; }
+  85% { opacity: 0.8; height: 70px; top: 0; }
+  100% { opacity: 0; height: 0; top: 60px; }
+}
+
+.prepPlaying .smoothieLayer1 { animation: layerPour 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; }
+.prepPlaying .smoothieLayer2 { animation: layerPour 1.1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards; }
+.prepPlaying .smoothieLayer3 { animation: layerPour 1s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards; }
+.prepPlaying .smoothieFoam { animation: layerPour 0.7s cubic-bezier(0.16, 1, 0.3, 1) 2.8s forwards; }
+
+@keyframes layerPour { to { transform: scaleY(1); } }
+
+.prepPlaying .smoothieFruitBit1 { animation: bitPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 3.1s forwards; }
+.prepPlaying .smoothieFruitBit2 { animation: bitPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 3.3s forwards; }
+.prepPlaying .smoothieFruitBit3 { animation: bitPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 3.5s forwards; }
+
+@keyframes bitPop {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.chopScene { position: relative; width: 240px; height: 230px; }
+
+.chopBoard {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 222px;
+  height: 16px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #a9744f, #85573a);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.chopBoard::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.prepPlaying .chopBoard { animation: boardThud 3.2s ease 0.1s forwards; }
+
+@keyframes boardThud {
+  0%, 100% { transform: translateX(-50%) scaleY(1); }
+  13%, 41%, 71% { transform: translateX(-50%) scaleY(0.82); }
+  17%, 45%, 75% { transform: translateX(-50%) scaleY(1); }
+}
+
+.chopKnife {
+  position: absolute;
+  top: 10px;
+  right: 26px;
+  width: 128px;
+  height: 56px;
+  z-index: 6;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+}
+
+.chopKnifeBlade {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 88px;
+  height: 30px;
+  background: linear-gradient(180deg, #f8fafc 0%, #cdd6df 70%, #9fadba 100%);
+  clip-path: polygon(0 62%, 14% 22%, 100% 0, 100% 100%, 10% 100%);
+}
+
+.chopKnifeBlade::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 2%;
+  bottom: 3px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 2px;
+}
+
+.chopKnifeHandle {
+  position: absolute;
+  left: 84px;
+  bottom: 8px;
+  width: 44px;
+  height: 16px;
+  background: linear-gradient(180deg, #3d3d3d, #171717);
+  border-radius: 4px 9px 9px 4px;
+}
+
+.chopKnifeHandle::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #777;
+  box-shadow: 14px 0 0 #777;
+}
+
+.chopCarrot {
+  position: absolute;
+  bottom: 34px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+
+.carrotTop { position: relative; width: 30px; height: 36px; margin-right: -4px; }
+
+.carrotTop span {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 28px;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #a5d6a7, #2e7d32);
+  transform-origin: right center;
+}
+
+.carrotTop span:nth-child(1) { transform: translateY(-50%) rotate(22deg); }
+.carrotTop span:nth-child(2) { transform: translateY(-50%); width: 32px; }
+.carrotTop span:nth-child(3) { transform: translateY(-50%) rotate(-22deg); }
+
+.carrotBody {
+  width: 92px;
+  height: 36px;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, #ffa15c 0%, #ff7a1a 55%, #e55a00 100%);
+  border-radius: 18px 5px 5px 18px;
+}
+
+.carrotBody::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(0, 0, 0, 0.08) 14px 16px);
+}
+
+.carrotSlice {
+  width: 21px;
+  height: 36px;
+  margin-left: -1px;
+  position: relative;
+  border-radius: 6px;
+  background: radial-gradient(circle at 50% 50%, #ffd9ad 0 22%, #ffb26b 24% 46%, #ff7a1a 48% 100%);
+  box-shadow: inset 0 0 0 2px #e55a00;
+}
+
+.prepPlaying .carrotSliceA { animation: sliceFallA 0.8s cubic-bezier(0.34, 1.3, 0.64, 1) 0.5s forwards; }
+.prepPlaying .carrotSliceB { animation: sliceFallB 0.8s cubic-bezier(0.34, 1.3, 0.64, 1) 1.4s forwards; }
+.prepPlaying .carrotSliceC { animation: sliceFallC 0.8s cubic-bezier(0.34, 1.3, 0.64, 1) 2.3s forwards; }
+
+@keyframes sliceFallA {
+  45% { transform: translate(26px, -16px) rotate(38deg); }
+  100% { transform: translate(42px, 1px) rotate(86deg); }
+}
+
+@keyframes sliceFallB {
+  45% { transform: translate(20px, -13px) rotate(32deg); }
+  100% { transform: translate(31px, -1px) rotate(72deg); }
+}
+
+@keyframes sliceFallC {
+  45% { transform: translate(14px, -11px) rotate(28deg); }
+  100% { transform: translate(20px, 0) rotate(94deg); }
+}
+
+.prepPlaying .chopKnifeVeg { animation: knifeChopRun 3.2s cubic-bezier(0.6, 0, 0.5, 1) 0.1s forwards; }
+
+@keyframes knifeChopRun {
+  0% { transform: translate(0, -12px) rotate(-5deg); }
+  12% { transform: translate(0, 118px) rotate(0deg); }
+  24% { transform: translate(-6px, -8px) rotate(-6deg); }
+  40% { transform: translate(-21px, 118px) rotate(0deg); }
+  54% { transform: translate(-27px, -8px) rotate(-6deg); }
+  70% { transform: translate(-42px, 118px) rotate(0deg); }
+  84% { transform: translate(-48px, -14px) rotate(-7deg); }
+  100% { transform: translate(-48px, -16px) rotate(-8deg); }
+}
+
+.chopSpark {
+  position: absolute;
+  bottom: 66px;
+  width: 30px;
+  height: 30px;
+  z-index: 5;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 18%, rgba(255, 200, 120, 0.55) 20% 38%, transparent 42%);
+  opacity: 0;
+  transform: scale(0.2);
+  pointer-events: none;
+}
+
+.chopSpark1 { right: 42px; }
+.chopSpark2 { right: 62px; }
+.chopSpark3 { right: 82px; }
+
+.prepPlaying .chopSpark1 { animation: sparkPop 0.35s ease-out 0.48s; }
+.prepPlaying .chopSpark2 { animation: sparkPop 0.35s ease-out 1.38s; }
+.prepPlaying .chopSpark3 { animation: sparkPop 0.35s ease-out 2.28s; }
+
+@keyframes sparkPop {
+  0% { opacity: 0; transform: scale(0.2); }
+  35% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+.melonScene { position: relative; width: 240px; height: 230px; }
+
+.melon {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-58%);
+  width: 176px;
+  height: 90px;
+  z-index: 3;
+}
+
+.melonWedge {
+  position: absolute;
+  inset: 0;
+  border-radius: 90px 90px 0 0;
+  background: radial-gradient(farthest-side at 50% 100%, #ff6659 0 58%, #e53935 58% 74%, #fce4ec 74% 79%, #81c784 79% 86%, #1b5e20 86% 100%);
+  transform-origin: 50% 100%;
+}
+
+.melonSeed {
+  position: absolute;
+  width: 5px;
+  height: 9px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #1a1a1a;
+}
+
+.prepPlaying .melonWedgeR { animation: wedgeTipR 0.9s cubic-bezier(0.34, 1.2, 0.64, 1) 0.55s forwards; }
+.prepPlaying .melonWedgeM { animation: wedgeTipM 0.9s cubic-bezier(0.34, 1.2, 0.64, 1) 1.55s forwards; }
+
+@keyframes wedgeTipR {
+  50% { transform: translate(30px, -8px) rotate(18deg); }
+  100% { transform: translate(44px, 0) rotate(30deg); }
+}
+
+@keyframes wedgeTipM {
+  50% { transform: translate(14px, -6px) rotate(7deg); }
+  100% { transform: translate(20px, 0) rotate(12deg); }
+}
+
+.prepPlaying .chopKnifeFruit { animation: melonChopRun 2.8s cubic-bezier(0.6, 0, 0.5, 1) 0.1s forwards; }
+
+@keyframes melonChopRun {
+  0% { transform: translate(14px, -12px) rotate(-5deg); }
+  16% { transform: translate(14px, 106px) rotate(0deg); }
+  32% { transform: translate(8px, -8px) rotate(-6deg); }
+  52% { transform: translate(-38px, 106px) rotate(0deg); }
+  68% { transform: translate(-44px, -14px) rotate(-7deg); }
+  100% { transform: translate(-44px, -16px) rotate(-8deg); }
+}
+
+.melonDrop {
+  position: absolute;
+  bottom: 110px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50% 50% 50% 0;
+  background: #ff5252;
+  opacity: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.melonDrop1 { left: 52%; }
+.melonDrop2 { left: 62%; transform: rotate(45deg); }
+.melonDrop3 { left: 34%; }
+
+.prepPlaying .melonDrop1 { animation: dropFly1 0.7s ease-out 0.6s; }
+.prepPlaying .melonDrop2 { animation: dropFly2 0.7s ease-out 0.66s; }
+.prepPlaying .melonDrop3 { animation: dropFly1 0.7s ease-out 1.6s; }
+
+@keyframes dropFly1 {
+  0% { opacity: 0; transform: translate(0,0) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-22px, -44px) scale(1); }
+}
+
+@keyframes dropFly2 {
+  0% { opacity: 0; transform: translate(0,0) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(26px, -40px) scale(1); }
+}
+
+.prepStageCutfruit .prepStageGlow {
+  background: radial-gradient(circle at 50% 75%, rgba(229, 57, 53, 0.14) 0%, transparent 55%);
+}
+
+.prepStageCutfruit .prepStageTag {
+  background: rgba(229, 57, 53, 0.18);
+  color: #C62828;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prepPlaying .carrotSliceA { transform: translate(42px, 1px) rotate(86deg); }
+  .prepPlaying .carrotSliceB { transform: translate(31px, -1px) rotate(72deg); }
+  .prepPlaying .carrotSliceC { transform: translate(20px, 0) rotate(94deg); }
+  .prepPlaying .melonWedgeR { transform: translate(44px, 0) rotate(30deg); }
+  .prepPlaying .melonWedgeM { transform: translate(20px, 0) rotate(12deg); }
+  .prepPlaying .chopKnifeVeg { transform: translate(-48px, -16px) rotate(-8deg); }
+  .prepPlaying .chopKnifeFruit { transform: translate(-44px, -16px) rotate(-8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prepPlaying .juiceLiquid { height: 82%; }
+  .prepPlaying .juiceCapWrap { transform: translateX(-50%) rotate(-30deg) translateY(-42px); opacity: 0.5; }
+  .prepPlaying .smoothieLayer, .prepPlaying .smoothieFoam { transform: scaleY(1); }
+  .prepPlaying .smoothieFruitBit { opacity: 1; transform: scale(1); }
+}
+
+/* Status text — green dot, theme-invariant */
+.prepStatus {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5C5347;
+  position: relative;
+  z-index: 2;
+  transition: color 0.4s;
+}
+
+.prepPlaying .prepStatus { color: #2E7D32; }
+
+.prepPlaying .prepStatus::before {
+  content: '● ';
+  animation: blink 1.5s infinite;
+}
+
+@media (max-width: 1024px) {
+  .prepGrid { grid-template-columns: 1fr; }
+}

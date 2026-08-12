@@ -1,0 +1,142 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  height: var(--header-h);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.scrolled {
+  box-shadow: var(--shadow-sm);
+}
+
+.inner {
+  max-width: var(--max-w-header);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 36px;
+  width: auto;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: var(--ls-wide);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.navLink:hover {
+  color: var(--accent);
+}
+
+.navLinkActive {
+  color: var(--accent);
+  position: relative;
+}
+
+.navLinkActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.rightCluster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.authControl {
+  display: inline-flex;
+  align-items: center;
+}
+
+
+.appBadge {
+  display: inline-block;
+  line-height: 0;
+  text-decoration: none;
+  padding: 0;
+  background: transparent;
+  border-radius: 6px;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.appBadge:hover {
+  opacity: 0.82;
+  background: transparent;
+}
+
+.appBadge img {
+  display: block;
+  height: 30px;
+  width: auto;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+}
+
+@media (max-width: 1023px) {
+  .desktopNav {
+    display: none;
+  }
+
+  .appBadge {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}

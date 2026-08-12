@@ -1,0 +1,315 @@
+.pageLoader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  background: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+    visibility 0.65s 0.15s,
+    background 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pageLoader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 45%, rgba(255, 107, 0, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(46, 133, 64, 0.1) 0%, transparent 52%);
+}
+
+.loaderExit {
+  background: var(--color-cream);
+}
+
+.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loaderInner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loaderLogoBlock {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  opacity: 0;
+  transform: scale(0.86);
+  filter: blur(6px);
+}
+
+.loaderLogo {
+  width: min(148px, 34vw);
+  height: auto;
+  display: block;
+}
+
+.loaderLogoWord {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.35em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.loaderStudioBlock {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  opacity: 0;
+  transform: translateY(28px) scale(0.94);
+  filter: blur(12px);
+  max-width: min(440px, 90vw);
+}
+
+.loaderStudioFrame {
+  position: relative;
+  width: min(400px, 88vw);
+  padding: 3px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--color-orange-500),
+    var(--color-green-500),
+    var(--color-orange-500)
+  );
+  background-size: 220% 220%;
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.loaderRun .loaderStudioFrame {
+  animation: gradientFlow 3.5s ease infinite;
+}
+
+.loaderStudioFrame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(62vh, 580px);
+  object-fit: contain;
+  object-position: center;
+  border-radius: 17px;
+  background: white;
+  transform-origin: center center;
+}
+
+.loaderStudioShine {
+  position: absolute;
+  inset: 3px;
+  border-radius: 17px;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 62%
+  );
+  transform: translateX(-140%);
+}
+
+.loaderStudioLabel {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+}
+
+.loaderExit .loaderStudioLabel {
+  color: var(--color-ink);
+}
+
+.loaderStudioTag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  opacity: 0;
+}
+
+.loaderExit .loaderStudioTag {
+  color: var(--text-muted);
+}
+
+.loaderProgress {
+  position: absolute;
+  bottom: clamp(1.5rem, 4vh, 2.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(220px, 44vw);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 3;
+  transition: opacity 0.4s;
+}
+
+.loaderExit .loaderProgress {
+  opacity: 0;
+}
+
+.loaderProgress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--color-orange-500), var(--color-green-500));
+  border-radius: 2px;
+}
+
+.loaderRun .loaderLogoBlock {
+  animation:
+    loaderLogoIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    loaderLogoOut 0.75s cubic-bezier(0.55, 0, 1, 0.45) 1.55s forwards;
+}
+
+.loaderRun .loaderStudioBlock {
+  animation:
+    loaderStudioIn 1.15s cubic-bezier(0.16, 1, 0.3, 1) 1.95s forwards,
+    loaderStudioOut 0.55s cubic-bezier(0.16, 1, 0.3, 1) 3.85s forwards;
+}
+
+.loaderRun .loaderStudioFrame img {
+  animation: loaderKenBurns 1.8s cubic-bezier(0.16, 1, 0.3, 1) 2.15s forwards;
+}
+
+.loaderRun .loaderStudioShine {
+  animation: loaderShineSweep 1.4s cubic-bezier(0.16, 1, 0.3, 1) 2.35s forwards;
+}
+
+.loaderRun .loaderStudioLabel {
+  animation: loaderCaptionIn 0.65s ease 2.45s forwards;
+}
+
+.loaderRun .loaderStudioTag {
+  animation: loaderCaptionIn 0.65s ease 2.6s forwards;
+}
+
+.loaderRun .loaderProgress span {
+  animation: loaderProgressFill 4.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes loaderLogoIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes loaderLogoOut {
+  to {
+    opacity: 0;
+    transform: scale(1.14);
+    filter: blur(10px);
+  }
+}
+
+@keyframes loaderStudioIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes loaderStudioOut {
+  to {
+    opacity: 0;
+    transform: translateY(-16px) scale(1.03);
+    filter: blur(6px);
+  }
+}
+
+@keyframes loaderKenBurns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes loaderShineSweep {
+  to {
+    transform: translateX(140%);
+  }
+}
+
+@keyframes loaderCaptionIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes loaderProgressFill {
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loaderRun .loaderLogoBlock,
+  .loaderRun .loaderStudioBlock,
+  .loaderRun .loaderStudioFrame img,
+  .loaderRun .loaderStudioShine,
+  .loaderRun .loaderStudioLabel,
+  .loaderRun .loaderStudioTag,
+  .loaderRun .loaderProgress span,
+  .loaderRun .loaderStudioFrame {
+    animation: none;
+  }
+
+  .loaderRun .loaderLogoBlock {
+    opacity: 0;
+  }
+
+  .loaderRun .loaderStudioBlock {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .loaderRun .loaderStudioLabel,
+  .loaderRun .loaderStudioTag {
+    opacity: 1;
+  }
+}
+
+:global(body.loading) {
+  overflow: hidden;
+}

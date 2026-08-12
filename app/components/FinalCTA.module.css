@@ -1,0 +1,94 @@
+.cta {
+  background: #0e1410;
+  color: #faf8f5;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 5.5rem var(--space-6);
+}
+
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 107, 0, 0.14) 0%,
+    transparent 60%
+  );
+}
+
+.sectionInner {
+  max-width: var(--max-w-content);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.sectionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-orange-500);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  letter-spacing: 0.03em;
+  line-height: 1.02;
+  margin-bottom: 0.85rem;
+  color: white;
+  position: relative;
+}
+
+.sectionDesc {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 620px;
+  line-height: 1.7;
+  margin: 0 auto 2rem;
+  position: relative;
+}
+
+.storeBadges {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.storeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    color 0.25s;
+}
+
+.storeBadge:hover {
+  background: var(--color-orange-500);
+  border-color: var(--color-orange-500);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .cta {
+    padding: 4rem var(--space-5);
+  }
+}

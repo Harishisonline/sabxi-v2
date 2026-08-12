@@ -1,0 +1,172 @@
+/* SiteFooter — matches sabxiharish/app/globals.css footer design exactly.
+   The footer is always dark (var(--color-ink) background) in BOTH light
+   and dark themes, matching the live sabxi.com behavior. The only thing
+   that differs from sabxiharish is the Contact column App Store / Google
+   Play entries: we use the SVG/PNG badges (via AppStoreBadges) instead
+   of text links, to keep brand-compliant store badges everywhere.
+
+   Footer dark theme is intentional — it sits below the dark FinalCTA
+   section, so a light footer would create a jarring color jump.
+   The dark footer provides a clean visual close to every page. */
+
+.footer {
+  background: #141414;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 3rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 0;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 600px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+}
+
+.brand img {
+  height: 44px;
+  margin-bottom: 0.75rem;
+  width: auto;
+  display: block;
+}
+
+.brand p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 300px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.brand strong {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+.tag {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: #ff8533;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+}
+
+.col h5 {
+  color: white;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+.col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.col li {
+  line-height: 2;
+}
+
+.col a {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.col a:hover {
+  color: #ff8533;
+}
+
+.appBadges {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.appBadges a {
+  display: inline-block;
+  background: transparent;
+  padding: 0;
+  line-height: 0;
+  transition: opacity 0.2s;
+}
+
+.appBadges a:hover {
+  opacity: 0.85;
+}
+
+.appBadges img {
+  display: block;
+  height: 38px;
+  width: auto;
+}
+
+.legal {
+  max-width: 1200px;
+  margin: 1.5rem auto 0;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.7;
+}
+
+.legal strong {
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+}
+
+.legal a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.legal a:hover {
+  color: #ff8533;
+}
+
+.copy {
+  text-align: center;
+  font-size: 0.78rem;
+  margin-top: 2rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.copy a {
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.copy a:hover {
+  color: #ff8533;
+}

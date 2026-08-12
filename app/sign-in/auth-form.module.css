@@ -1,0 +1,19 @@
+.wrap {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-9) var(--space-5);
+  background: var(--bg);
+}
+
+.root {
+  width: 100%;
+  max-width: 420px;
+}
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}

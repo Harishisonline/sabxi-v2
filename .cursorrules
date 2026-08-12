@@ -1,0 +1,68 @@
+# BetterSabxi project rules
+
+This project is a from-scratch rebuild of `~/Downloads/Programming/sabxiharish/` (the existing automated-clone Next.js site) per three spec docs at the project root. The rebuild is the "advanced version" of sabxi.com — same content, same assets, same flow, but with proper code structure, dark mode, a Fruit-Ninja interactive section, and shared navigation across all 12 routes.
+
+## Read these files before doing anything
+
+In this order:
+
+1. `IMPLEMENTATION_PLAN.md` — the 53-task build plan in order. This is the source of truth for what to build and in what sequence.
+2. `PRD.md` — what we are building and why.
+3. `design.md` — how it looks and feels (tokens, components, dark mode, Fruit-Ninja section).
+4. `~/Downloads/Programming/sabxiharish/` — the source-of-truth clone. Read files from here for content, copy, and styles. Never invent content.
+
+## The 10 hard rules
+
+1. **Work in task order from `IMPLEMENTATION_PLAN.md`.** Don't skip ahead, don't reorder, don't merge tasks. The plan is sequenced for a reason.
+2. **The source of truth for content is the clone** at `~/Downloads/Programming/sabxiharish/`. Read files from there. Copy body content verbatim. The only content change is the Chembur → Kurla address fix (rule 3).
+3. **Apply the Chembur → Kurla address fix on every file that mentions the studio address.** The clone says "Chembur studio" / "Chembur, Mumbai" in many places; the rebuild uses "Kurla" / "Kurla, Mumbai" (the legal address per MCA is `Shop No. 4, Sai Life, Yashwanth Nagar, Kurla, Mumbai 400071`). After every port, run `grep -rE "Chembur studio|Chembur, Mumbai" app/` and fix all matches. The `/areas/` page keeps "Chembur and nearby" as marketing-friendly copy.
+4. **Use the design tokens from `app/styles/tokens.css`.** Never hardcode colors or font sizes. The token system is the entire point — it prevents the 2,055-line single-file CSS disaster from the clone.
+5. **Use `next/font/local`** (Bebas Neue + Outfit woff2 files from `public/fonts/`). Never link Google Fonts. The plan's M0.4 has the download commands.
+6. **The shared header is `app/components/SiteHeader.tsx` and the shared footer is `app/components/SiteFooter.tsx`.** Render them in the root `app/layout.tsx` so they appear on every route. Don't add inline `<nav>` or `<footer>` to any page — that's the bug the rebuild fixes.
+7. **The 3 fake reviews on the home page must be replaced with the empty state in `app/components/Reviews.tsx`.** The clone has "Priya S. Mumbai", "Rahul M. Mumbai", "Anita K. Delhi" — fabricated testimonials, one of which mentions Delhi when SABXI only operates in Chembur. Never resurrect them. The plan's M2.7 / Task 32 has the replacement component.
+8. **Every commit message starts with the task number** as written in the plan, e.g. `M0.1: scaffold Next.js 16.3 project with TS, ESLint, next.config`. After each task, run the verify command from the plan. If it fails, fix before moving on.
+9. **The Fruit-Ninja section (M4) is a single `<canvas>` + a static grid fallback.** The plan has the algorithm and starter code. Don't add a game library, don't use framer-motion, don't introduce any new dependencies for it. The canvas hit detection must account for `window.devicePixelRatio`. The 30s session timer has a known minor issue (one-frame freeze after timeout) — leave it, the post-pitch iteration handles it.
+10. **`trailingSlash: true`** in `next.config.ts` so the rebuild's URLs match the live `sabxi.com` (which uses `/about/`, `/blog/.../`, etc.). Without this, every internal link 308s and the founder's existing SEO breaks.
+
+## What to refuse
+
+- "Add Plausible / Google Analytics" — out of scope for v1.0. The README documents how to add Plausible later.
+- "Add Tailwind / styled-components / any CSS framework" — the plan uses CSS Modules + tokens. Adding a framework is out of scope.
+- "Refactor the clone's 2,055-line CSS" — the clone is read-only. You port what each component needs, not the whole file.
+- "Replace the Mixkit hero video with something else" — the founder wants the stock video kept. The README documents how to swap it later.
+- "Add a separate admin subdomain (admin.sabxi.com)" — v2.0 hardening, not v1.0.
+
+## M9 additions (now in scope)
+
+- **Auth:** Clerk (email OTP, phone OTP, Google OAuth, GitHub OAuth). Admin uses Google + phone only.
+- **Database:** Vercel KV (deprecated) or Upstash Redis. Used for reviews, blog posts, user mirror.
+- **Image storage:** Vercel Blob for blog covers.
+- **Forms:** review submission + blog submission + admin moderation. All server-validated.
+- **Admin area:** `/admin/` with role check via Clerk `publicMetadata.role === 'admin'`.
+
+## The 3 things that will silently go wrong if you don't check
+
+1. **`next.config.ts` missing `images.remotePatterns`** for `images.unsplash.com` and `assets.mixkit.co`. The hero video + poster silently 404 without these. The plan's M0.1 has the right config.
+2. **The Chembur → Kurla address fix gets missed on 1–2 pages** if you batch-port all 12 inner pages. After M1, run the grep and fix the stragglers.
+3. **The Fruit-Ninja canvas game (M4.3) has subtle bugs** if you write it without testing. After M4.3, manually click falling produce 10 times and watch for jank, dropped slices, or detached DOM warnings in Chrome DevTools.
+
+## How to work with me (the user)
+
+- I will ask you to work in milestone-sized chunks (M0, M1, M2, ...). Don't try to do all 8 milestones in one Composer session — you lose context and start inventing.
+- After each task, I'll ask you to run the verify command. If it fails, fix before moving on. If it passes, commit with the message from the plan.
+- After each milestone, I'll ask you to run the milestone's done gate. Confirm all checks pass before I tell you to start the next milestone.
+- If a task is ambiguous, **read the relevant section of `IMPLEMENTATION_PLAN.md` first** before guessing. The plan has the algorithm, the code, the verify command, and the commit message for every task.
+- If a task is genuinely impossible (e.g. an external API is down), tell me. Don't work around it silently.
+
+## What "done" means for this project
+
+The site is done when the 8 verification commands in `IMPLEMENTATION_PLAN.md` Appendix B all pass:
+
+1. `npm run build` succeeds
+2. `npm run lint` is clean
+3. All 12 routes return 200
+4. No "Priya S." / "Rahul M." / "Anita K." in the source
+5. No "Delhi" in the source
+6. No Google Fonts calls
+7. No `body { overflow-x: hidden }` band-aid
+8. "Chembur studio" / "Chembur, Mumbai" only in `/areas/` (not in `/about/`, `/studio/`, `/company/`, etc.)

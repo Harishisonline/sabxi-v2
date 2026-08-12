@@ -1,0 +1,74 @@
+.appSticky {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  padding: 0.65rem 0.85rem calc(0.65rem + env(safe-area-inset-bottom));
+  background: rgba(12, 12, 12, 0.94);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(110%);
+  transition: transform 0.35s var(--ease-out);
+}
+
+.show {
+  transform: translateY(0);
+}
+
+.appStickyInner {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.appStickyCopy {
+  flex: 1;
+  min-width: 0;
+  color: white;
+}
+
+.appStickyCopy strong {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.appStickyCopy span {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.appStickyCta {
+  flex-shrink: 0;
+  background: var(--color-orange-500);
+  color: white;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+  border-radius: 50px;
+  white-space: nowrap;
+}
+
+.appStickyClose {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .appSticky {
+    display: block;
+  }
+}

@@ -1,0 +1,22 @@
+.badges {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badges a {
+  display: inline-block;
+  line-height: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.badges a:hover {
+  opacity: 0.85;
+}
+
+.badges img {
+  display: block;
+  height: 40px;
+  width: auto;
+}

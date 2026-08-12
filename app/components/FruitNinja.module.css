@@ -1,0 +1,219 @@
+/* Page-wide falling produce. Pure CSS — no canvas. */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-overlay);
+  overflow: hidden;
+}
+
+/* Each produce is a button so the user can click/tap to slice.
+   The button is at the top-left of the viewport; we translate it via
+   inline transform (set by the rAF loop in the component). */
+.produce {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px; /* center the emoji on its (x, y) point */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: crosshair;
+  pointer-events: auto;
+  /* Allow transform to be set inline every frame */
+  will-change: transform;
+  transition: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.produce:focus-visible {
+  outline: none;
+}
+
+.emoji {
+  font-size: 56px;
+  line-height: 1;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  pointer-events: none;
+}
+
+/* Sliced state — slight grow + rotate, then fall */
+.sliced .emoji {
+  animation: sliceFlash 220ms ease-out forwards;
+  filter: drop-shadow(0 4px 8px rgba(255, 107, 0, 0.35));
+}
+
+@keyframes sliceFlash {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.4) rotate(15deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(0.6) rotate(-25deg);
+    opacity: 0;
+  }
+}
+
+.particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Reveal overlay (centered product card after a slice) */
+.reveal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.12);
+  animation: revealFade 200ms ease-out;
+}
+
+@keyframes revealFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.revealCard {
+  pointer-events: auto;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-7);
+  text-align: center;
+  max-width: 360px;
+  width: calc(100vw - var(--space-8));
+  animation: revealPop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes revealPop {
+  0% {
+    transform: scale(0.6) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.revealEmoji {
+  display: block;
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: var(--space-3);
+}
+
+.revealName {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--fs-xl);
+  margin-bottom: var(--space-2);
+  color: var(--text);
+}
+
+.revealDesc {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  margin-bottom: var(--space-4);
+}
+
+.revealLink {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--accent-fg);
+  text-decoration: none;
+  font-weight: 600;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.revealLink:hover {
+  transform: translateY(-1px);
+}
+
+.revealLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* On very wide screens, push produce a bit further from the edge */
+@media (min-width: 1440px) {
+  .emoji {
+    font-size: 64px;
+  }
+}
+
+/* On smaller screens, smaller emoji */
+@media (max-width: 1024px) {
+  .emoji {
+    font-size: 48px;
+  }
+  .revealCard {
+    padding: var(--space-6);
+  }
+  .revealEmoji {
+    font-size: 56px;
+  }
+}
+
+/* On narrow screens, even smaller — but still visible */
+@media (max-width: 768px) {
+  .emoji {
+    font-size: 40px;
+  }
+  .produce {
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+  }
+  .revealCard {
+    padding: var(--space-5);
+  }
+  .revealEmoji {
+    font-size: 48px;
+  }
+}
+
+/* Reduced motion: produce is visible but doesn't animate.
+   The emoji sits in its default position (spawned at top, drifts via
+   the rAF loop — which is suppressed). The static CSS-only positions
+   are set via transform: translate3d(0, 0, 0) on render. */
+@media (prefers-reduced-motion: reduce) {
+  .produce {
+    /* No transform animation */
+    animation: none;
+  }
+  .particle,
+  .reveal,
+  .revealCard,
+  .sliced .emoji {
+    animation: none;
+  }
+}
