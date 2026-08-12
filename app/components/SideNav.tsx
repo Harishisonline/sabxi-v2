@@ -1,94 +1,79 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AppStoreBadges } from "./AppStoreBadges";
 import styles from "./SideNav.module.css";
 
-type CategoryId = "products" | "read" | "legal";
+type CategoryId = "browse" | "company";
 
 type NavLink = { href: string; label: string; exact?: boolean };
 
 type Category = {
   id: CategoryId;
   label: string;
-  icon: string;
+  blurb: string;
   links: NavLink[];
 };
 
 const CATEGORIES: Category[] = [
   {
-    id: "products",
-    label: "Products",
-    icon: "🥕",
+    id: "browse",
+    label: "Browse",
+    blurb: "The product, the studio, the customers.",
     links: [
-      { href: "/products/", label: "All Products" },
-      { href: "/products/#lines", label: "Mixed Packs" },
-    ],
-  },
-  {
-    id: "read",
-    label: "Read",
-    icon: "📖",
-    links: [
-      { href: "/blog/", label: "Blog" },
-      { href: "/reviews/", label: "Reviews" },
-      { href: "/about/", label: "About" },
-      { href: "/studio/", label: "Studio" },
+      { href: "/products/", label: "Products" },
+      { href: "/studio/", label: "SABXI Studio" },
+      { href: "/reviews/", label: "Customer Reviews" },
       { href: "/areas/", label: "Service Areas" },
-      { href: "/hi/", label: "हिंदी" },
     ],
   },
   {
-    id: "legal",
-    label: "Legal & Info",
-    icon: "📋",
+    id: "company",
+    label: "Company",
+    blurb: "The people, the legal, the story.",
     links: [
+      { href: "/about/", label: "About" },
+      { href: "/blog/", label: "Blog" },
+      { href: "/company/", label: "Company Info" },
       { href: "/privacy/", label: "Privacy Policy" },
       { href: "/terms/", label: "Terms of Service" },
       { href: "/refund/", label: "Refunds & Cancellations" },
-      { href: "/company/", label: "Company Info" },
     ],
   },
 ];
 
 const STORAGE_KEY = "sabxi-sidenav-expanded";
 const DEFAULT_EXPANDED: Record<CategoryId, boolean> = {
-  products: true,
-  read: true,
-  legal: false,
+  browse: true,
+  company: true,
 };
 
-// Single in-memory cache so useSyncExternalStore doesn't re-read localStorage
-// on every render. Keyed by storage-version so future schema changes can
-// invalidate without manual cleanup.
 const expandedCache: { value: Record<CategoryId, boolean>; version: number } = {
   value: DEFAULT_EXPANDED,
   version: 0,
 };
 
-function readExpandedFromStorage(): Record<CategoryId, boolean> {
+function readFromStorage(): Record<CategoryId, boolean> {
   if (typeof window === "undefined") return DEFAULT_EXPANDED;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_EXPANDED;
     const parsed = JSON.parse(raw);
     return {
-      products: parsed.products ?? true,
-      read: parsed.read ?? true,
-      legal: parsed.legal ?? false,
+      browse: parsed.browse ?? true,
+      company: parsed.company ?? true,
     };
   } catch {
     return DEFAULT_EXPANDED;
   }
 }
 
-function subscribeToExpanded(callback: () => void): () => void {
+function subscribe(callback: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   const onStorage = (e: StorageEvent) => {
     if (e.key === STORAGE_KEY) {
-      expandedCache.value = readExpandedFromStorage();
+      expandedCache.value = readFromStorage();
       expandedCache.version++;
       callback();
     }
@@ -97,64 +82,53 @@ function subscribeToExpanded(callback: () => void): () => void {
   return () => window.removeEventListener("storage", onStorage);
 }
 
-function getExpandedSnapshot(): Record<CategoryId, boolean> {
+function getSnapshot(): Record<CategoryId, boolean> {
   return expandedCache.value;
 }
 
-function getExpandedServerSnapshot(): Record<CategoryId, boolean> {
+function getServerSnapshot(): Record<CategoryId, boolean> {
   return DEFAULT_EXPANDED;
 }
 
-function writeExpandedToStorage(state: Record<CategoryId, boolean>) {
+function writeToStorage(state: Record<CategoryId, boolean>) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     expandedCache.value = state;
     expandedCache.version++;
   } catch {
-    // localStorage unavailable — fail silently, sidebar still works in-memory
+    // localStorage unavailable — sidebar still works in-memory
   }
 }
 
-/**
- * useExpandedState — bridge localStorage into React state without triggering
- * the React 19 "no setState in effect" warning. The "server" snapshot returns
- * the default (no localStorage available during SSR); the client snapshot
- * returns the live in-memory cache, which is hydrated from localStorage on
- * first client render via `useEffect` below.
- */
 function useExpandedState(): [
   Record<CategoryId, boolean>,
-  (updater: (prev: Record<CategoryId, boolean>) => Record<CategoryId, boolean>) => void,
+  (id: CategoryId) => void,
 ] {
   const value = useSyncExternalStore(
-    subscribeToExpanded,
-    getExpandedSnapshot,
-    getExpandedServerSnapshot,
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
   );
 
-  // Lazy hydration: on first client render, pull the live value from
-  // localStorage so the server-default state is replaced with the user's
-  // actual saved preferences. Only runs once.
+  // Lazy hydration from localStorage on first client render. Uses a ref
+  // guard so we only hydrate once and don't keep firing the effect.
   const hydratedRef = useRef(false);
   useEffect(() => {
     if (hydratedRef.current) return;
     hydratedRef.current = true;
-    const stored = readExpandedFromStorage();
+    const stored = readFromStorage();
     if (JSON.stringify(stored) !== JSON.stringify(expandedCache.value)) {
       expandedCache.value = stored;
       expandedCache.version++;
     }
   }, []);
 
-  const setValue = useCallback(
-    (updater: (prev: Record<CategoryId, boolean>) => Record<CategoryId, boolean>) => {
-      const next = updater(expandedCache.value);
-      writeExpandedToStorage(next);
-    },
-    [],
-  );
+  const toggle = (id: CategoryId) => {
+    const next = { ...expandedCache.value, [id]: !expandedCache.value[id] };
+    writeToStorage(next);
+  };
 
-  return [value, setValue];
+  return [value, toggle];
 }
 
 export function SideNav({
@@ -165,13 +139,9 @@ export function SideNav({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const drawerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Initialise expanded state from localStorage using useSyncExternalStore
-  // so SSR returns the default state and client hydrates from storage
-  // without triggering React 19's "no setState in effect" warning.
-  const [expanded, setExpanded] = useExpandedState();
+  const drawerRef = useRef<HTMLElement>(null);
+  const [expanded, toggle] = useExpandedState();
 
   // Lock body scroll when open.
   useEffect(() => {
@@ -193,55 +163,54 @@ export function SideNav({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // Move focus into the drawer when it opens, restore on close.
+  // Focus the close button when the drawer opens.
   useEffect(() => {
     if (open) {
-      // Defer to next tick so the element is in the DOM and animating in.
-      const t = window.setTimeout(() => closeButtonRef.current?.focus(), 50);
+      const t = window.setTimeout(() => closeButtonRef.current?.focus(), 60);
       return () => window.clearTimeout(t);
     }
     return;
   }, [open]);
 
-  // Auto-close on route change so navigating from inside the drawer doesn't
-  // leave it open on the new page. Compare against the previous pathname
-  // via a ref so we only fire onClose when it actually changes — and defer
-  // the call to a microtask so we don't trigger a cascading render inside
-  // the same effect that observed the change.
+  // Auto-close on route change. Use a ref to avoid the
+  // setState-in-cascading-render lint rule.
   const prevPathnameRef = useRef(pathname);
   useEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
+      // Defer to microtask so we don't trigger a cascading render.
       queueMicrotask(onClose);
     }
-    // Only depends on pathname so we don't reopen on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact || href === "/") return pathname === href;
-    // Strip trailing slash for comparison, then check both with and without.
     const norm = (s: string) => (s.endsWith("/") ? s : s + "/");
     const target = norm(href);
     return pathname === target || pathname.startsWith(target);
   };
 
-  const toggleCategory = (id: CategoryId) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  // Close when clicking the backdrop (the area outside the drawer).
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Close on click outside the drawer. The root container holds both
+  // the backdrop and the drawer, so we listen at the root and check
+  // whether the click landed on the root itself (i.e. the backdrop area)
+  // versus inside the drawer.
+  const handleRootClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  // Defensive: also close on any click on the backdrop element directly.
+  // Some browsers route the event target differently when the backdrop
+  // has its own absolute positioning.
+  const handleBackdropClick = () => onClose();
 
   return (
     <div
       className={`${styles.root} ${open ? styles.rootOpen : ""}`}
-      onClick={handleBackdropClick}
+      onClick={handleRootClick}
       aria-hidden={!open}
     >
-      <div className={styles.backdrop} aria-hidden="true" />
+      <div className={styles.backdrop} onClick={handleBackdropClick} aria-hidden="true" />
       <aside
         ref={drawerRef}
         className={`${styles.drawer} ${open ? styles.drawerOpen : ""}`}
@@ -265,46 +234,52 @@ export function SideNav({
           </button>
         </div>
 
-        <nav className={styles.nav} aria-label="Site navigation links">
+        <div className={styles.intro}>
+          <span className={styles.eyebrow}>Navigate</span>
+          <p className={styles.lede}>
+            Freshly cut. Quickly delivered. <span className={styles.ledeAccent}>From Kurla.</span>
+          </p>
+        </div>
+
+        <nav className={styles.nav} aria-label="All site pages">
           <Link
             href="/"
             className={`${styles.homeLink} ${isActive("/", true) ? styles.homeLinkActive : ""}`}
             onClick={onClose}
           >
-            <span className={styles.homeIcon} aria-hidden="true">🏠</span>
-            <span>Home</span>
+            <span className={styles.homeIndex}>00</span>
+            <span className={styles.homeLabel}>Home</span>
+            {isActive("/", true) && <span className={styles.activeMark} aria-hidden="true" />}
           </Link>
 
-          <div className={styles.divider} role="separator" aria-hidden="true" />
-
-          {CATEGORIES.map((cat) => {
+          {CATEGORIES.map((cat, idx) => {
             const isOpen = expanded[cat.id];
+            const groupNumber = String(idx + 1).padStart(2, "0");
             return (
-              <div key={cat.id} className={styles.category}>
+              <section key={cat.id} className={styles.category}>
                 <button
                   type="button"
-                  className={`${styles.categoryHeader} ${isOpen ? styles.categoryHeaderOpen : ""}`}
-                  onClick={() => toggleCategory(cat.id)}
+                  className={styles.categoryHeader}
+                  onClick={() => toggle(cat.id)}
                   aria-expanded={isOpen}
                   aria-controls={`sidenav-cat-${cat.id}`}
                 >
-                  <span className={styles.categoryIcon} aria-hidden="true">{cat.icon}</span>
-                  <span className={styles.categoryLabel}>{cat.label}</span>
+                  <span className={styles.catIndex}>{groupNumber}</span>
+                  <span className={styles.catLabel}>{cat.label}</span>
                   <span
                     className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}
                     aria-hidden="true"
-                  >
-                    ▾
-                  </span>
+                  />
                 </button>
-                <div
+                {isOpen && (
+                  <p className={styles.catBlurb}>{cat.blurb}</p>
+                )}
+                <ul
                   id={`sidenav-cat-${cat.id}`}
-                  className={`${styles.categoryBody} ${isOpen ? styles.categoryBodyOpen : ""}`}
-                  role="region"
-                  aria-label={cat.label}
+                  className={`${styles.linkList} ${isOpen ? styles.linkListOpen : ""}`}
                 >
-                  <ul className={styles.linkList}>
-                    {cat.links.map((link) => (
+                  {isOpen &&
+                    cat.links.map((link) => (
                       <li key={link.href}>
                         <Link
                           href={link.href}
@@ -315,22 +290,22 @@ export function SideNav({
                         </Link>
                       </li>
                     ))}
-                  </ul>
-                </div>
-              </div>
+                </ul>
+              </section>
             );
           })}
         </nav>
 
-        <div className={styles.footer}>
-          <a className={styles.email} href="mailto:info@sabxi.com">
-            ✉ info@sabxi.com
+        <div className={styles.foot}>
+          <Link href="/hi/" className={styles.langSwitch} onClick={onClose}>
+            <span aria-hidden="true">→</span>
+            <span>हिंदी</span>
+          </Link>
+          <a className={styles.footEmail} href="mailto:info@sabxi.com">
+            info@sabxi.com
           </a>
-          <AppStoreBadges className={styles.badges} />
-          <p className={styles.legal}>
-            © 2026 Sabxi Private Limited
-            <br />
-            CIN U46301MH2026PTC473853
+          <p className={styles.footLegal}>
+            © 2026 Sabxi Private Limited · CIN U46301MH2026PTC473853
           </p>
         </div>
       </aside>

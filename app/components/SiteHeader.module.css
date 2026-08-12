@@ -1,10 +1,9 @@
-/* SiteHeader — slim top bar.
+/* SiteHeader — top bar with hamburger on the LEFT, inline nav center on
+   desktop, right cluster (theme + auth + app badges) on the right.
 
-   Navigation links (Home / Products / Reviews / Blog / Areas / About) used
-   to live inline here for desktop. They were moved to <SideNav>, which is a
-   slide-in drawer triggered by the hamburger button on both mobile and
-   desktop. The header now shows only logo + theme toggle + auth + app
-   store badges + hamburger.
+   Layout: [≡] [LOGO] [Home Products Reviews Blog Areas About] [☀ Sign-in AppStore PlayStore]
+   At < 1024px: [≡] [LOGO] [☀] [hamburger is the only nav trigger; the inline
+   nav is hidden, the drawer takes over for navigation].
 */
 
 .header {
@@ -28,8 +27,47 @@
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-4);
+}
+
+/* Hamburger is on the LEFT of the header, before the logo. Visible at every
+   viewport — on desktop it gives one-tap access to the full sitemap drawer
+   (which is the SideNav), on mobile it's the only nav trigger. */
+.hamburger {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hamburger:hover,
+.hamburger:focus-visible {
+  background: var(--bg-band);
+  outline: none;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 1px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hamburger:hover span,
+.hamburger:focus-visible span {
+  background: var(--accent);
 }
 
 .logoLink {
@@ -42,6 +80,46 @@
 .logo {
   height: 36px;
   width: auto;
+}
+
+/* Inline nav — center on desktop. Hidden below 1024px where the drawer
+   becomes the only nav trigger. */
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: var(--ls-wide);
+  text-decoration: none;
+  position: relative;
+  padding: 4px 0;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.navLink:hover {
+  color: var(--accent);
+}
+
+.navLinkActive {
+  color: var(--accent);
+}
+
+.navLinkActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
 }
 
 .rightCluster {
@@ -78,48 +156,22 @@
   width: auto;
 }
 
-/* Hamburger is visible at every breakpoint — the side nav drawer
-   covers both mobile and desktop now. */
-.hamburger {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-  border-radius: var(--radius-pill);
-  transition: background var(--dur-fast) var(--ease-out);
-}
-
-.hamburger:hover,
-.hamburger:focus-visible {
-  background: var(--bg-band);
-}
-
-.hamburger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--text);
-  transition: background var(--dur-fast) var(--ease-out);
-}
-
-.hamburger:hover span,
-.hamburger:focus-visible span {
-  background: var(--accent);
+@media (max-width: 1023px) {
+  /* Below 1024px: hide the inline nav, the drawer takes over. */
+  .desktopNav {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {
-  /* Hide app store badges on small screens — sidebar already has them. */
+  /* Below 720px: hide app store badges in the header — they're in the drawer. */
   .appBadge {
     display: none;
   }
   .rightCluster {
+    gap: var(--space-2);
+  }
+  .inner {
     gap: var(--space-2);
   }
 }
