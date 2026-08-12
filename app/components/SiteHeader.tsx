@@ -99,7 +99,9 @@ export function SiteHeader() {
 
           {/* Right cluster */}
           <div className={styles.rightCluster}>
-            <ThemeToggle />
+            <div className={styles.themeSlot}>
+              <ThemeToggle />
+            </div>
             <AuthControl className={styles.authControl} />
             <a
               className={styles.appBadge}

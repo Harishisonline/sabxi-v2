@@ -130,6 +130,11 @@
   margin-left: auto;
 }
 
+.themeSlot {
+  display: inline-flex;
+  align-items: center;
+}
+
 .authControl {
   display: inline-flex;
   align-items: center;
@@ -159,6 +164,17 @@
 @media (max-width: 1023px) {
   /* Below 1024px: hide the inline nav, the drawer takes over. */
   .desktopNav {
+    display: none;
+  }
+}
+
+/* Mid widths: give hamburger + logo room; drawer is the only nav. */
+@media (min-width: 721px) and (max-width: 1023px) {
+  .appBadge {
+    display: none;
+  }
+
+  .themeSlot {
     display: none;
   }
 }
