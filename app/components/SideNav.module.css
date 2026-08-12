@@ -114,6 +114,10 @@
   outline: none;
 }
 
+.close:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 /* ===== Intro (eyebrow + lede) ===== */
 
 .intro {
@@ -179,6 +183,10 @@
   outline: none;
 }
 
+.homeLink:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .homeLinkActive {
   color: var(--accent);
 }
@@ -236,6 +244,10 @@
   background: var(--bg-band);
   color: var(--accent);
   outline: none;
+}
+
+.categoryHeader:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .catIndex {
@@ -325,6 +337,10 @@
   color: var(--accent);
   padding-left: 70px;
   outline: none;
+}
+
+.link:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .linkActive {

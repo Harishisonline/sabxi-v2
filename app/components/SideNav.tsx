@@ -3,6 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DrawerAuthControl } from "./DrawerAuthControl";
 import styles from "./SideNav.module.css";
 
 type CategoryId = "browse" | "company";
@@ -45,8 +46,8 @@ const CATEGORIES: Category[] = [
 
 const STORAGE_KEY = "sabxi-sidenav-expanded";
 const DEFAULT_EXPANDED: Record<CategoryId, boolean> = {
-  browse: true,
-  company: true,
+  browse: false,
+  company: false,
 };
 
 const expandedCache: { value: Record<CategoryId, boolean>; version: number } = {
@@ -61,8 +62,8 @@ function readFromStorage(): Record<CategoryId, boolean> {
     if (!raw) return DEFAULT_EXPANDED;
     const parsed = JSON.parse(raw);
     return {
-      browse: parsed.browse ?? true,
-      company: parsed.company ?? true,
+      browse: parsed.browse ?? DEFAULT_EXPANDED.browse,
+      company: parsed.company ?? DEFAULT_EXPANDED.company,
     };
   } catch {
     return DEFAULT_EXPANDED;
@@ -304,6 +305,7 @@ export function SideNav({
           <a className={styles.footEmail} href="mailto:info@sabxi.com">
             info@sabxi.com
           </a>
+          <DrawerAuthControl />
           <p className={styles.footLegal}>
             © 2026 Sabxi Private Limited · CIN U46301MH2026PTC473853
           </p>
