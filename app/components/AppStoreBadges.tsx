@@ -1,7 +1,5 @@
 import styles from "./AppStoreBadges.module.css";
 
-type Variant = "dark" | "light";
-
 /**
  * AppStoreBadges — the official Apple App Store + Google Play badges.
  * Apple: SVG, transparent background, dark style by default.
@@ -10,14 +8,12 @@ type Variant = "dark" | "light";
  * Per Apple's iOS Marketing Guidelines and Google's Play Store brand
  * guidelines, the official badges must be used when linking to the app
  * stores. Text links ("App Store" / "Google Play") are not compliant.
+ *
+ * NOTE (B5): raw <img> here (and elsewhere) is a known Lighthouse/next/image
+ * polish item — leave as-is for now; converting 14+ call sites is a
+ * separate perf pass, not part of the nav audit.
  */
-export function AppStoreBadges({
-  variant = "dark",
-  className,
-}: {
-  variant?: Variant;
-  className?: string;
-}) {
+export function AppStoreBadges({ className }: { className?: string }) {
   return (
     <div className={`${styles.badges} ${className ?? ""}`}>
       <a

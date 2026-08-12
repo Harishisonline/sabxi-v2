@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import styles from "./page.module.css";
 
 /**
  * Dynamic blog route handler.
  *
- * All 6 blog slugs have dedicated static files at app/blog/<slug>/page.tsx
- * which take precedence in Next.js routing. The dynamic handler below is
- * a fallback for future blog slugs (when M9.10 ships and users can post
- * blogs that get a unique slug). For now, any slug not in the static
- * list returns 404.
+ * INTENTIONAL (E1): All 6 blog slugs have dedicated static files at
+ * app/blog/<slug>/page.tsx which take precedence in Next.js routing.
+ * This dynamic handler is a deliberate 404 fallback for unknown slugs,
+ * reserved for M9.10 when user-posted blogs get unique slugs from KV.
+ * Do not delete — keep as the catch-all until that ships.
  */
 
 export const metadata: Metadata = {
@@ -24,7 +22,8 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  // Consume params so the route stays typed; unknown slugs 404.
+  await params;
 
   // All current slugs are handled by static files at app/blog/<slug>/page.tsx.
   // If we reach this code, the slug wasn't found — return 404.
