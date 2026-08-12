@@ -45,22 +45,20 @@ const CATEGORIES: Category[] = [
 ];
 
 const STORAGE_KEY = "sabxi-sidenav-expanded";
+const SAME_TAB_EVENT = "sabxi-sidenav-expanded";
 const DEFAULT_EXPANDED: Record<CategoryId, boolean> = {
   browse: false,
   company: false,
 };
 
-const expandedCache: { value: Record<CategoryId, boolean>; version: number } = {
-  value: DEFAULT_EXPANDED,
-  version: 0,
-};
+/** Snapshot cache — only for referential equality for useSyncExternalStore. */
+let snapshotRaw: string | null | undefined = undefined;
+let snapshotValue: Record<CategoryId, boolean> = DEFAULT_EXPANDED;
 
-function readFromStorage(): Record<CategoryId, boolean> {
-  if (typeof window === "undefined") return DEFAULT_EXPANDED;
+function parseExpanded(raw: string | null): Record<CategoryId, boolean> {
+  if (!raw) return DEFAULT_EXPANDED;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_EXPANDED;
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(raw) as Partial<Record<CategoryId, boolean>>;
     return {
       browse: parsed.browse ?? DEFAULT_EXPANDED.browse,
       company: parsed.company ?? DEFAULT_EXPANDED.company,
@@ -70,66 +68,60 @@ function readFromStorage(): Record<CategoryId, boolean> {
   }
 }
 
-function subscribe(callback: () => void): () => void {
-  if (typeof window === "undefined") return () => {};
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === STORAGE_KEY) {
-      expandedCache.value = readFromStorage();
-      expandedCache.version++;
-      callback();
-    }
-  };
-  window.addEventListener("storage", onStorage);
-  return () => window.removeEventListener("storage", onStorage);
-}
-
 function getSnapshot(): Record<CategoryId, boolean> {
-  return expandedCache.value;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw === snapshotRaw) return snapshotValue;
+  snapshotRaw = raw;
+  snapshotValue = parseExpanded(raw);
+  return snapshotValue;
 }
 
 function getServerSnapshot(): Record<CategoryId, boolean> {
   return DEFAULT_EXPANDED;
 }
 
-function writeToStorage(state: Record<CategoryId, boolean>) {
+function subscribe(onStoreChange: () => void): () => void {
+  const notify = () => {
+    snapshotRaw = undefined; // invalidate so getSnapshot re-reads
+    onStoreChange();
+  };
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) notify();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(SAME_TAB_EVENT, notify);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(SAME_TAB_EVENT, notify);
+  };
+}
+
+function writeExpanded(next: Record<CategoryId, boolean>) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    expandedCache.value = state;
-    expandedCache.version++;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // localStorage unavailable — sidebar still works in-memory
+    // still update in-memory snapshot if storage is blocked
   }
+  snapshotRaw = undefined;
+  snapshotValue = next;
+  window.dispatchEvent(new Event(SAME_TAB_EVENT));
 }
 
 function useExpandedState(): [
   Record<CategoryId, boolean>,
   (id: CategoryId) => void,
 ] {
-  const value = useSyncExternalStore(
+  const expanded = useSyncExternalStore(
     subscribe,
     getSnapshot,
     getServerSnapshot,
   );
 
-  // Lazy hydration from localStorage on first client render. Uses a ref
-  // guard so we only hydrate once and don't keep firing the effect.
-  const hydratedRef = useRef(false);
-  useEffect(() => {
-    if (hydratedRef.current) return;
-    hydratedRef.current = true;
-    const stored = readFromStorage();
-    if (JSON.stringify(stored) !== JSON.stringify(expandedCache.value)) {
-      expandedCache.value = stored;
-      expandedCache.version++;
-    }
-  }, []);
-
   const toggle = (id: CategoryId) => {
-    const next = { ...expandedCache.value, [id]: !expandedCache.value[id] };
-    writeToStorage(next);
+    writeExpanded({ ...expanded, [id]: !expanded[id] });
   };
 
-  return [value, toggle];
+  return [expanded, toggle];
 }
 
 export function SideNav({
@@ -141,7 +133,6 @@ export function SideNav({
 }) {
   const pathname = usePathname();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const drawerRef = useRef<HTMLElement>(null);
   const [expanded, toggle] = useExpandedState();
 
   // Lock body scroll when open.
@@ -166,24 +157,18 @@ export function SideNav({
 
   // Focus the close button when the drawer opens.
   useEffect(() => {
-    if (open) {
-      const t = window.setTimeout(() => closeButtonRef.current?.focus(), 60);
-      return () => window.clearTimeout(t);
-    }
-    return;
+    if (!open) return;
+    const t = window.setTimeout(() => closeButtonRef.current?.focus(), 60);
+    return () => window.clearTimeout(t);
   }, [open]);
 
-  // Auto-close on route change. Use a ref to avoid the
-  // setState-in-cascading-render lint rule.
+  // Auto-close on route change.
   const prevPathnameRef = useRef(pathname);
   useEffect(() => {
-    if (prevPathnameRef.current !== pathname) {
-      prevPathnameRef.current = pathname;
-      // Defer to microtask so we don't trigger a cascading render.
-      queueMicrotask(onClose);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    if (prevPathnameRef.current === pathname) return;
+    prevPathnameRef.current = pathname;
+    queueMicrotask(onClose);
+  }, [pathname, onClose]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact || href === "/") return pathname === href;
@@ -192,28 +177,17 @@ export function SideNav({
     return pathname === target || pathname.startsWith(target);
   };
 
-  // Close on click outside the drawer. The root container holds both
-  // the backdrop and the drawer, so we listen at the root and check
-  // whether the click landed on the root itself (i.e. the backdrop area)
-  // versus inside the drawer.
-  const handleRootClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
-  // Defensive: also close on any click on the backdrop element directly.
-  // Some browsers route the event target differently when the backdrop
-  // has its own absolute positioning.
-  const handleBackdropClick = () => onClose();
-
   return (
     <div
       className={`${styles.root} ${open ? styles.rootOpen : ""}`}
-      onClick={handleRootClick}
       aria-hidden={!open}
     >
-      <div className={styles.backdrop} onClick={handleBackdropClick} aria-hidden="true" />
+      <div
+        className={styles.backdrop}
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <aside
-        ref={drawerRef}
         className={`${styles.drawer} ${open ? styles.drawerOpen : ""}`}
         role="dialog"
         aria-modal="true"
@@ -272,12 +246,11 @@ export function SideNav({
                     aria-hidden="true"
                   />
                 </button>
-                {isOpen && (
-                  <p className={styles.catBlurb}>{cat.blurb}</p>
-                )}
+                {isOpen && <p className={styles.catBlurb}>{cat.blurb}</p>}
                 <ul
                   id={`sidenav-cat-${cat.id}`}
-                  className={`${styles.linkList} ${isOpen ? styles.linkListOpen : ""}`}
+                  className={styles.linkList}
+                  hidden={!isOpen}
                 >
                   {isOpen &&
                     cat.links.map((link) => (

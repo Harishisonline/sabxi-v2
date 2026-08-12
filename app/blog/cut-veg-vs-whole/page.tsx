@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppStoreBadges } from "../../components/AppStoreBadges";
-import styles from "../[slug]/page.module.css";
+import styles from "../post.module.css";
 
 export const metadata: Metadata = {
   title: "Cut Veg vs Whole: Which Should You Order? | SABXI",

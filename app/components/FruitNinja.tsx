@@ -47,6 +47,8 @@ const RENDER_EVERY_N_FRAMES = 3; // ~20fps render, 60fps physics
 type Produce = {
   id: number;
   type: number;
+  side: "left" | "right";
+  xPct: number;
   x: number;
   y: number;
   vx: number;
@@ -84,13 +86,20 @@ function getShouldShow(): boolean {
   return !isMobile && !saveData;
 }
 
-function subscribeNever() {
-  return () => {};
+/** Re-check media/viewport when the user resizes or changes motion preference. */
+function subscribeViewport(onStoreChange: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onStoreChange);
+  window.addEventListener("resize", onStoreChange);
+  return () => {
+    mq.removeEventListener("change", onStoreChange);
+    window.removeEventListener("resize", onStoreChange);
+  };
 }
 
 export function FruitNinja() {
-  const canAnimate = useSyncExternalStore(subscribeNever, getCanAnimate, () => false);
-  const shouldShow = useSyncExternalStore(subscribeNever, getShouldShow, () => false);
+  const canAnimate = useSyncExternalStore(subscribeViewport, getCanAnimate, () => false);
+  const shouldShow = useSyncExternalStore(subscribeViewport, getShouldShow, () => false);
 
   const [produce, setProduce] = useState<Produce[]>(() => {
     if (typeof window === "undefined") return [];
@@ -142,6 +151,8 @@ export function FruitNinja() {
       initial.push({
         id: nextIdRef.current++,
         type: cfg.type,
+        side: cfg.side,
+        xPct: cfg.xPct,
         x: viewportWRef.current * cfg.xPct,
         y: -40 + i * (viewportHRef.current * 0.22),
         vx: (Math.random() - 0.5) * 0.4,
@@ -161,6 +172,8 @@ export function FruitNinja() {
       produceRef.current.push({
         id: nextIdRef.current++,
         type: cfg.type,
+        side: cfg.side,
+        xPct: cfg.xPct,
         x: viewportWRef.current * cfg.xPct,
         y: -40,
         vx: (Math.random() - 0.5) * 0.4,
@@ -243,10 +256,10 @@ export function FruitNinja() {
     const onResize = () => {
       viewportWRef.current = window.innerWidth;
       viewportHRef.current = window.innerHeight;
-      const newProduce = produceRef.current.map((p) => {
-        const cfg = SPAWN_CONFIG[p.type];
-        return { ...p, x: viewportWRef.current * cfg.xPct };
-      });
+      const newProduce = produceRef.current.map((p) => ({
+        ...p,
+        x: viewportWRef.current * p.xPct,
+      }));
       produceRef.current = newProduce;
       setProduce(newProduce);
     };
@@ -288,13 +301,12 @@ export function FruitNinja() {
         data-can-animate={canAnimate ? "true" : "false"}
       >
         {produce.map((p) => {
-          const cfg = SPAWN_CONFIG[p.type];
           const product = PRODUCTS[p.type];
           return (
             <button
               key={p.id}
               type="button"
-              className={`${styles.produce} ${styles[`side_${cfg.side}`]} ${
+              className={`${styles.produce} ${styles[`side_${p.side}`]} ${
                 p.sliced ? styles.sliced : ""
               }`}
               style={{
@@ -354,6 +366,8 @@ function initialProduce(): Produce[] {
     out.push({
       id: i,
       type: cfg.type,
+      side: cfg.side,
+      xPct: cfg.xPct,
       x: vw * cfg.xPct,
       y: -40 + i * (vh * 0.22),
       vx: 0,

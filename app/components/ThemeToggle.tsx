@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import styles from "./ThemeToggle.module.css";
 
 type Theme = "light" | "dark";
@@ -34,9 +34,8 @@ function subscribe(onStoreChange: () => void) {
   listeners.add(onStoreChange);
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   const onScheme = () => {
-    if (localStorage.getItem(STORAGE_KEY) !== "light" && localStorage.getItem(STORAGE_KEY) !== "dark") {
-      onStoreChange();
-    }
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored !== "light" && stored !== "dark") onStoreChange();
   };
   mq.addEventListener("change", onScheme);
   return () => {
@@ -106,12 +105,6 @@ export function ThemeToggle() {
     () => false
   );
 
-  const cycle = useCallback(() => {
-    const current = getStoredTheme();
-    const next: Theme = current === "light" ? "dark" : "light";
-    setTheme(next);
-  }, []);
-
   const label = mounted
     ? `Theme: ${theme}. Click to switch.`
     : "Toggle theme";
@@ -120,7 +113,9 @@ export function ThemeToggle() {
     <button
       type="button"
       className={styles.toggle}
-      onClick={cycle}
+      onClick={() => {
+        setTheme(getStoredTheme() === "light" ? "dark" : "light");
+      }}
       aria-label={label}
       title={label}
     >
