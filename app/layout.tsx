@@ -31,6 +31,7 @@ export const metadata: Metadata = {
   },
   description:
     "SABXI is a D2C fresh food brand delivering freshly cut veggies, cut fruits, cold-pressed juices, whole produce, and smoothies — prepared live at SABXI Studio and delivered in under 30 minutes.",
+  // B14: derive from env; fall back to localhost in dev, sabxi.com in prod.
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ??
       (process.env.NODE_ENV === "production"
@@ -42,6 +43,13 @@ export const metadata: Metadata = {
     description:
       "SABXI is a D2C fresh food brand delivering freshly cut veggies, cut fruits, cold-pressed juices, whole produce, and smoothies — prepared live at SABXI Studio and delivered in under 30 minutes.",
     type: "website",
+    siteName: "SABXI",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SABXI — Freshly Cut, Quickly Delivered",
+    description:
+      "Freshly cut veggies, fruits & juices from Kurla Studio — delivered in under 30 minutes.",
   },
 };
 
@@ -63,7 +71,15 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en" className={`${outfit.variable} ${bebasNeue.variable}`} suppressHydrationWarning>
+      {/* TODO(D3): keep suppressHydrationWarning — Clerk + ThemeScript mutate
+          <html>/<body> attributes/classes after hydration. Revisit once Clerk
+          ships a hydration-safe provider that doesn't require this. */}
+      <html
+        lang="en"
+        className={`${outfit.variable} ${bebasNeue.variable}`}
+        data-scroll-behavior="smooth"
+        suppressHydrationWarning
+      >
         <head>
           <ThemeScript />
         </head>
