@@ -1,3 +1,12 @@
+/* SiteHeader — slim top bar.
+
+   Navigation links (Home / Products / Reviews / Blog / Areas / About) used
+   to live inline here for desktop. They were moved to <SideNav>, which is a
+   slide-in drawer triggered by the hamburger button on both mobile and
+   desktop. The header now shows only logo + theme toggle + auth + app
+   store badges + hamburger.
+*/
+
 .header {
   position: sticky;
   top: 0;
@@ -35,55 +44,18 @@
   width: auto;
 }
 
-.desktopNav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  flex: 1;
-  justify-content: center;
-}
-
-.navLink {
-  color: var(--text);
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  letter-spacing: var(--ls-wide);
-  text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-
-.navLink:hover {
-  color: var(--accent);
-}
-
-.navLinkActive {
-  color: var(--accent);
-  position: relative;
-}
-
-.navLinkActive::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -22px;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 1px;
-}
-
 .rightCluster {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .authControl {
   display: inline-flex;
   align-items: center;
 }
-
 
 .appBadge {
   display: inline-block;
@@ -106,8 +78,10 @@
   width: auto;
 }
 
+/* Hamburger is visible at every breakpoint — the side nav drawer
+   covers both mobile and desktop now. */
 .hamburger {
-  display: none;
+  display: inline-flex;
   flex-direction: column;
   gap: 5px;
   width: 40px;
@@ -118,6 +92,13 @@
   border: 0;
   cursor: pointer;
   padding: 0;
+  border-radius: var(--radius-pill);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.hamburger:hover,
+.hamburger:focus-visible {
+  background: var(--bg-band);
 }
 
 .hamburger span {
@@ -125,18 +106,20 @@
   width: 22px;
   height: 2px;
   background: var(--text);
+  transition: background var(--dur-fast) var(--ease-out);
 }
 
-@media (max-width: 1023px) {
-  .desktopNav {
-    display: none;
-  }
+.hamburger:hover span,
+.hamburger:focus-visible span {
+  background: var(--accent);
+}
 
+@media (max-width: 720px) {
+  /* Hide app store badges on small screens — sidebar already has them. */
   .appBadge {
     display: none;
   }
-
-  .hamburger {
-    display: flex;
+  .rightCluster {
+    gap: var(--space-2);
   }
 }

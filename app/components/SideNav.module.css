@@ -1,0 +1,353 @@
+/* SideNav — left-side slide-in navigation drawer.
+
+   Behavior:
+   - Closed by default; mounted in the DOM but inert (aria-hidden, no pointer events).
+   - When `open` is true, slides in from the left over a translucent backdrop.
+   - Body scroll is locked while open (handled in the component).
+   - Categories expand/collapse with a chevron rotate + height transition.
+   - Active route is highlighted.
+   - Closes on Esc, backdrop click, link click, or route change.
+
+   Theming:
+   - Light mode: warm cream surface, dark text, orange accent.
+   - Dark mode: dark green-tinted surface, warm cream text, brighter orange.
+   - All colors via tokens so they flip automatically with [data-theme].
+*/
+
+/* ===== Root container (full-screen overlay wrapper) ===== */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.rootOpen {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+/* ===== Backdrop ===== */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 20, 16, 0.55);
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(2px);
+}
+
+.rootOpen .backdrop {
+  opacity: 1;
+}
+
+/* ===== Drawer ===== */
+
+.drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(360px, 88vw);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  box-shadow: 24px 0 60px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .backdrop {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Header (logo + close button) ===== */
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.close {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg-band);
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.close:hover,
+.close:focus-visible {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ===== Nav (scrollable region) ===== */
+
+.nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4) 0 var(--space-5);
+  overscroll-behavior: contain;
+}
+
+/* ===== Home link (sits above the categories) ===== */
+
+.homeLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  letter-spacing: var(--ls-wide);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.homeLink:hover,
+.homeLink:focus-visible {
+  background: var(--bg-band);
+  color: var(--accent);
+}
+
+.homeLinkActive {
+  color: var(--accent);
+  background: var(--bg-band);
+}
+
+.homeIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-3) var(--space-5);
+  border: 0;
+}
+
+/* ===== Category block ===== */
+
+.category {
+  display: block;
+}
+
+.categoryHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  letter-spacing: var(--ls-wide);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.categoryHeader:hover,
+.categoryHeader:focus-visible {
+  background: var(--bg-band);
+  color: var(--accent);
+}
+
+.categoryHeaderOpen {
+  color: var(--accent);
+}
+
+.categoryIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.categoryLabel {
+  flex: 1;
+}
+
+.chevron {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-soft);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotate(-90deg);
+}
+
+.chevronOpen {
+  transform: rotate(0deg);
+  color: var(--accent);
+}
+
+/* ===== Category body (collapsible) ===== */
+
+.categoryBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.categoryBody > .linkList {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.categoryBodyOpen {
+  grid-template-rows: 1fr;
+}
+
+.linkList {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+}
+
+.link {
+  display: block;
+  padding: var(--space-2) var(--space-5) var(--space-2) calc(var(--space-5) + var(--space-5));
+  color: var(--text-soft);
+  font-size: var(--fs-md);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--accent);
+  background: var(--bg-band);
+}
+
+.linkActive {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--bg-band);
+  font-weight: 600;
+}
+
+/* ===== Footer block (contact + badges + legal) ===== */
+
+.footer {
+  flex-shrink: 0;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-top: 1px solid var(--border);
+  background: var(--bg-band);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.email {
+  color: var(--text);
+  font-size: var(--fs-md);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.email:hover,
+.email:focus-visible {
+  color: var(--accent);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.badges a {
+  display: inline-block;
+  background: transparent;
+  padding: 0;
+  line-height: 0;
+  transition: opacity 0.2s;
+}
+
+.badges a:hover {
+  opacity: 0.85;
+}
+
+.badges img {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+
+.legal {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ===== Dark-mode polish ===== */
+
+[data-theme="dark"] .drawer {
+  background: #14201a;
+  border-right-color: #2f4434;
+}
+
+[data-theme="dark"] .close {
+  background: #1f2c23;
+}
+
+[data-theme="dark"] .footer {
+  background: #1a2620;
+}
+
+[data-theme="dark"] .backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
